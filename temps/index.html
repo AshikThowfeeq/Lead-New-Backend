@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+  <style>
+    /* Custom switch styles */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 40px;
+      height: 20px;
+      margin-bottom: 0;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      -webkit-transition: .4s;
+      transition: .4s;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 14px;
+      width: 14px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      -webkit-transition: .4s;
+      transition: .4s;
+    }
+
+    input:checked+.slider {
+      background-color: #2196F3;
+    }
+
+    input:focus+.slider {
+      box-shadow: 0 0 1px #2196F3;
+    }
+
+    input:checked+.slider:before {
+      -webkit-transform: translateX(20px);
+      -ms-transform: translateX(20px);
+      transform: translateX(20px);
+    }
+
+    /* Rounded sliders */
+    .slider.round {
+      border-radius: 20px;
+    }
+
+    .slider.round:before {
+      border-radius: 50%;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="bulb-container">
+    {% for classroom in classrooms %}
+    <h2>{{ classroom.name }}</h2>
+    {% for bulb in classroom.bulb_set.all %}
+    <div class="bulb">
+      <h3>{{ bulb.name }}</h3>
+      <form id="form-{{ bulb.id }}" method="POST" action="{% url 'update_pin' bulb.id %}">
+        {% csrf_token %}
+        <input type="hidden" name="pin" value="{{ bulb.pin }}">
+        <input type="hidden" name="status" id="status-{{ bulb.id }}"
+          value="{% if bulb.status %}on{% else %}off{% endif %}">
+        <input type="hidden" name="token" value="{{ bulb.token }}">
+        <label class="switch">
+          <input type="checkbox" onclick="toggleSwitch('{{ bulb.id }}')"
+            {% if bulb.status %}checked{% endif %}>
+          <span class="slider round"></span>
+        </label>
+      </form>
+      {% for status in status_data %}
+        {% if status.id == bulb.id %}
+          <p>Status: {{ status.status }}</p>
+        {% endif %}
+      {% endfor %}
+    </div>
+    {% endfor %}
+    {% endfor %}
+  </div>
+
+  <script>
+    function toggleSwitch(bulbId) {
+      const switchElement = document.getElementById(`status-${bulbId}`);
+      const currentValue = switchElement.value;
+      switchElement.value = currentValue === 'on' ? 'off' : 'on';
+      document.getElementById(`form-${bulbId}`).submit();
+    }
+
+    setTimeout(function() {
+        location.reload();
+    }, 10000); // Refresh the page every 1 minute (60000 milliseconds)
+  </script>
+
+</body>
+
+</html>
