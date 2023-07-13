@@ -8,98 +8,223 @@
   <title>Document</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
-  <style>
-    /* Custom switch styles */
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 40px;
-      height: 20px;
-      margin-bottom: 0;
-    }
+<style>
+  .bulb-container {
+    padding: 20px;
+  }
 
-    .switch input {
-      opacity: 0;
+  .bulb {
+    position: relative;
+    height: 80px;
+  }
+
+  .card {
+    box-sizing: border-box;
+    width: auto;
+    max-width: 470px;
+    height: 254px;
+    margin: 0 auto;
+    background: white;
+    border: 1px solid rgb(0, 0, 0);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 17px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.5s;
+    display: flex;
+    justify-content: center;
+    user-select: none;
+    font-weight: bolder;
+    color: rgb(0, 0, 0);
+    margin-bottom: 20px; /* Add margin-bottom to create spacing between cards */
+  }
+
+  .card:hover {
+    transform: scale(1.05);
+  }
+
+  .status {
+    margin-top: 10px;
+  }
+
+  /* Loading animation */
+  .lds-ripple {
+    display: inline-block;
+    position: relative;
+    width: 80px;
+    height: 80px;
+  }
+
+  .lds-ripple div {
+    position: absolute;
+    border: 4px solid green;
+    opacity: 1;
+    border-radius: 50%;
+    animation: lds-ripple 1s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+  }
+
+  .lds-ripple div:nth-child(2) {
+    animation-delay: -0.5s;
+  }
+
+  @keyframes lds-ripple {
+    0% {
+      top: 36px;
+      left: 36px;
       width: 0;
       height: 0;
+      opacity: 1;
     }
+    100% {
+      top: 0px;
+      left: 0px;
+      width: 72px;
+      height: 72px;
+      opacity: 0;
+    }
+  }
 
-    .slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: #ccc;
-      -webkit-transition: .4s;
-      transition: .4s;
+  @media (max-width: 576px) {
+    .bulb {
+      height: 100px; /* Adjust the height as needed */
     }
+  }
 
-    .slider:before {
-      position: absolute;
-      content: "";
-      height: 14px;
-      width: 14px;
-      left: 3px;
-      bottom: 3px;
-      background-color: white;
-      -webkit-transition: .4s;
-      transition: .4s;
-    }
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
 
-    input:checked+.slider {
-      background-color: #2196F3;
-    }
+  p {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    padding: 10px;
+    color: #143240;
+    text-align: center;
+    font-size: 14px;
+    font-family: Helvetica, serif;
+  }
 
-    input:focus+.slider {
-      box-shadow: 0 0 1px #2196F3;
-    }
+  #toggle_checkbox {
+    display: none;
+  }
 
-    input:checked+.slider:before {
-      -webkit-transform: translateX(20px);
-      -ms-transform: translateX(20px);
-      transform: translateX(20px);
-    }
+  label {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    left: 0;
+    display: block;
+    width: 60px; /* Adjusted width */
+    height: 30px; /* Adjusted height */
+    margin: 0 auto;
+    transform: translateY(-50%);
+    cursor: pointer;
+  }
 
-    /* Rounded sliders */
-    .slider.round {
-      border-radius: 20px;
-    }
+  label:before {
+    top: 4px; /* Adjusted top position */
+    left: 4px; /* Adjusted left position */
+    width: 22px; /* Adjusted width */
+    height: 22px; /* Adjusted height */
+    border: 2px solid red; /* Adjusted border width */
+    background-color: red;
+  }
 
-    .slider.round:before {
-      border-radius: 50%;
-    }
-  </style>
+  label:after {
+    top: 0;
+    right: 0;
+    width: 60px; /* Adjusted width */
+    height: 30px; /* Adjusted height */
+    border: 2px solid #143240; /* Adjusted border width */
+  }
+
+  label:before,
+  label:after {
+    content: "";
+    position: absolute;
+    border-radius: 50px;
+    box-sizing: border-box;
+    transition: 0.5s ease top, 0.5s ease left, 0.5s ease right, 0.5s ease width,
+      0.5s ease height, 0.5s ease border-color, 0.5s ease background-color; /* Added background-color transition */
+  }
+
+  {% for classroom in classrooms %}
+  {% for bulb in classroom.bulb_set.all %}
+  #toggle_checkbox{{bulb.id}}:checked + label:before {
+    top: 0;
+    left: 0;
+    width: 60px; /* Adjusted width */
+    height: 30px; /* Adjusted height */
+    border-color: #143240;
+    background-color: white;
+  }
+
+  #toggle_checkbox{{bulb.id}}:checked + label:after {
+    top: 4px; /* Adjusted top position */
+    right: 4px; /* Adjusted right position */
+    width: 22px; /* Adjusted width */
+    height: 22px; /* Adjusted height */
+    border-color: green;
+    background-color: green;
+  }
+  input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+  {% endfor %}
+  {% endfor %}
+</style>
+
 </head>
 
 <body>
   <div class="bulb-container">
-    {% for classroom in classrooms %}
-    <h2>{{ classroom.name }}</h2>
-    {% for bulb in classroom.bulb_set.all %}
-    <div class="bulb">
-      <h3>{{ bulb.name }}</h3>
-      <form id="form-{{ bulb.id }}" method="POST" action="{% url 'update_pin' bulb.id %}">
-        {% csrf_token %}
-        <input type="hidden" name="pin" value="{{ bulb.pin }}">
-        <input type="hidden" name="status" id="status-{{ bulb.id }}"
-          value="{% if bulb.status %}on{% else %}off{% endif %}">
-        <input type="hidden" name="token" value="{{ bulb.token }}">
-        <label class="switch">
-          <input type="checkbox" onclick="toggleSwitch('{{ bulb.id }}')"
-            {% if bulb.status %}checked{% endif %}>
-          <span class="slider round"></span>
-        </label>
-      </form>
-      {% for status in status_data %}
-        {% if status.id == bulb.id %}
-          <p>Status: {{ status.status }}</p>
-        {% endif %}
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 mt-4">
+      {% for classroom in classrooms %}
+      <div class="col mb-4">
+        <div class="card">
+          <div class="card-header">
+            <h3>{{ classroom.name }}</h3>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              {% for bulb in classroom.bulb_set.all %}
+              <div class="col-6 col-md-3 mb-4">
+                <div class="bulb">
+                  <h5>{{ bulb.name }}</h5>
+                  <form id="form-{{ bulb.id }}" method="POST" action="{% url 'update_pin' bulb.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="pin" value="{{ bulb.pin }}">
+                    <input type="hidden" name="status" id="status-{{ bulb.id }}"
+                      value="{% if bulb.status %}on{% else %}off{% endif %}">
+                    <input type="hidden" name="token" value="{{ bulb.token }}">
+                    <input type="checkbox" id="toggle_checkbox{{bulb.id}}" onclick="toggleSwitch('{{ bulb.id }}')"
+                      {% if bulb.status %}checked{% endif %}>
+                    <label for="toggle_checkbox{{bulb.id}}" class="switch"></label>
+                  </form>
+                  <div class="status">
+                    {% for status in status_data %}
+                    {% if status.id == bulb.id %}
+                    {% if status.status == '0' %}
+                    {% else %}
+                    <div class="lds-ripple"><div></div><div></div></div>
+                    {% endif %}
+                    {% endif %}
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
       {% endfor %}
     </div>
-    {% endfor %}
-    {% endfor %}
   </div>
 
   <script>
@@ -110,11 +235,11 @@
       document.getElementById(`form-${bulbId}`).submit();
     }
 
-    setTimeout(function() {
+     setTimeout(function() {
         location.reload();
     }, 10000); // Refresh the page every 1 minute (60000 milliseconds)
-  </script>
 
+  </script>
 </body>
 
 </html>
